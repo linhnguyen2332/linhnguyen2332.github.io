@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nguyen Van Linh — IoT Engineer</title>
+<meta name="description" content="Nguyen Van Linh — IoT Engineer. From PLC and sensors to real-time dashboards and edge AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0D1216;
+    --panel:#121920;
+    --panel-alt:#161E26;
+    --border:#232C34;
+    --border-soft:#1B242C;
+    --text:#E7E9EA;
+    --text-muted:#8C98A4;
+    --amber:#F2A93B;
+    --cyan:#4FD1C5;
+    --green:#5FBF77;
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background-color:var(--bg);
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:42px 42px;
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  ul{list-style:none;}
+  section{scroll-margin-top:76px;}
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--cyan);
+    outline-offset:3px;
+  }
+
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- NAV ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(13,18,22,0.92);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-badge{
+    width:34px;height:34px;border:1px solid var(--amber);border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:11px;color:var(--amber);letter-spacing:.02em;
+    flex-shrink:0;
+  }
+  .brand-name{font-family:var(--font-display);font-weight:600;font-size:15px;white-space:nowrap;}
+  .nav-links{display:flex;gap:26px;font-family:var(--font-mono);font-size:13px;color:var(--text-muted);}
+  .nav-links a{transition:color .15s ease;}
+  .nav-links a:hover{color:var(--amber);}
+  .nav-right{display:flex;align-items:center;gap:18px;}
+  .nav-status{
+    display:flex;align-items:center;gap:8px;font-family:var(--font-mono);
+    font-size:12px;color:var(--text-muted);white-space:nowrap;
+  }
+  .status-dot{
+    width:7px;height:7px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 0 3px rgba(95,191,119,0.18);
+    animation:pulse 2s infinite;flex-shrink:0;
+  }
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .nav-toggle{display:none;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text);width:38px;height:38px;font-family:var(--font-mono);cursor:pointer;}
+
+  @media (max-width:880px){
+    .nav-links{
+      position:absolute;top:64px;left:0;right:0;
+      background:var(--bg);border-bottom:1px solid var(--border);
+      flex-direction:column;gap:0;display:none;padding:8px 24px 16px;
+    }
+    .nav-links.open{display:flex;}
+    .nav-links a{padding:12px 0;border-bottom:1px solid var(--border-soft);}
+    .nav-toggle{display:block;}
+    .nav-status{display:none;}
+  }
+
+  /* ---------- SHARED PANEL ---------- */
+  .panel{
+    position:relative;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:22px;
+  }
+  .panel::before,.panel::after{
+    content:"";position:absolute;width:10px;height:10px;
+    border:1px solid var(--amber);opacity:.55;
+  }
+  .panel::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
+  .panel::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
+
+  .eyebrow{
+    font-family:var(--font-mono);font-size:12.5px;color:var(--cyan);
+    letter-spacing:.07em;margin-bottom:14px;text-transform:uppercase;
+  }
+  .section-title{
+    font-family:var(--font-display);font-weight:700;
+    font-size:clamp(1.5rem,3vw,2.1rem);margin-bottom:36px;
+  }
+
+  /* reveal-on-scroll */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in-view{opacity:1;transform:translateY(0);}
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;padding:13px 24px;
+    border-radius:6px;font-family:var(--font-mono);font-size:13px;
+    border:1px solid transparent;transition:transform .15s ease, border-color .15s ease, color .15s ease;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--amber);color:#181109;font-weight:600;}
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{border-color:var(--border);color:var(--text);}
+  .btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-2px);}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:72px 0 56px;}
+  .hero-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:52px;align-items:center;}
+  @media (max-width:880px){.hero-grid{grid-template-columns:1fr;}}
+
+  .hero h1{
+    font-family:var(--font-display);font-weight:700;
+    font-size:clamp(2.3rem,5.8vw,3.6rem);letter-spacing:-.01em;margin-bottom:18px;
+  }
+  .hero-role{
+    font-family:var(--font-mono);color:var(--amber);font-size:1.05rem;margin-bottom:20px;
+  }
+  .hero-sub{color:var(--text-muted);max-width:560px;margin-bottom:32px;font-size:1.02rem;}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap;}
+
+  .nameplate{text-align:center;}
+  .avatar-frame{
+    width:100%;aspect-ratio:1/1;border-radius:6px;overflow:hidden;
+    border:1px solid var(--border-soft);margin-bottom:16px;
+  }
+  .avatar-frame img{width:100%;height:100%;object-fit:cover;filter:grayscale(10%) contrast(1.04);}
+  .nameplate-id{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);letter-spacing:.05em;margin-bottom:10px;}
+  .nameplate-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;}
+  .tag{
+    font-family:var(--font-mono);font-size:11px;padding:5px 9px;
+    border:1px solid var(--border);border-radius:4px;color:var(--text-muted);
+  }
+
+  .stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:48px;}
+  @media (max-width:720px){.stat-strip{grid-template-columns:repeat(2,1fr);}}
+  .stat-num{font-family:var(--font-display);font-size:1.9rem;color:var(--amber);font-weight:700;line-height:1;}
+  .stat-label{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);margin-top:8px;line-height:1.4;}
+
+  /* ---------- SCHEMATIC ---------- */
+  .schematic{padding:24px 0 64px;}
+  .schematic .panel{padding:32px 20px 24px;}
+  .schematic-head{text-align:center;margin-bottom:8px;}
+  .schematic-head h2{font-family:var(--font-display);font-size:clamp(1.3rem,2.6vw,1.8rem);margin-bottom:6px;}
+  .schematic-head p{color:var(--text-muted);font-size:.95rem;max-width:520px;margin:0 auto;}
+  .diagram-wrap{margin:28px auto 6px;max-width:980px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+  .signal-svg{width:100%;min-width:640px;height:auto;display:block;}
+  .node-box{fill:var(--panel-alt);stroke:var(--border);stroke-width:1.2;}
+  .node-title{font-family:var(--font-mono);font-size:13px;font-weight:600;fill:var(--text);text-transform:uppercase;letter-spacing:.03em;}
+  .node-sub{font-family:var(--font-mono);font-size:10.5px;fill:var(--text-muted);}
+  .flow-line{fill:none;stroke:var(--border);stroke-width:1.6;stroke-dasharray:6 6;animation:dashmove 1.4s linear infinite;}
+  @keyframes dashmove{to{stroke-dashoffset:-24;}}
+  .seg-label{font-family:var(--font-mono);font-size:10.5px;fill:var(--text-muted);text-anchor:middle;letter-spacing:.02em;}
+  .node-dot{fill:var(--green);}
+  .pulse-amber{fill:var(--amber);filter:drop-shadow(0 0 4px rgba(242,169,59,0.7));}
+  .pulse-cyan{fill:var(--cyan);filter:drop-shadow(0 0 4px rgba(79,209,197,0.7));}
+  .diagram-caption{text-align:center;color:var(--text-muted);font-size:.88rem;margin-top:18px;}
+  .scroll-hint{display:none;text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--text-muted);margin-top:8px;}
+  @media (max-width:700px){.scroll-hint{display:block;}}
+
+  /* ---------- STACK ---------- */
+  .stack{padding:24px 0 64px;}
+  .stack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+  .stack-card .eyebrow{margin-bottom:8px;}
+  .stack-card h3{font-family:var(--font-display);font-size:1.05rem;margin-bottom:14px;}
+  .stack-card .tag{margin:0 6px 6px 0;}
+  .stack-foot{
+    margin-top:24px;font-family:var(--font-mono);font-size:12.5px;color:var(--text-muted);
+    text-align:center;
+  }
+  .stack-foot span{color:var(--text);}
+
+  /* ---------- EXPERIENCE ---------- */
+  .experience{padding:24px 0 64px;}
+  .timeline-item{display:grid;grid-template-columns:128px 24px 1fr;gap:0 18px;}
+  .timeline-date{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);padding-top:24px;text-align:right;}
+  .timeline-rail{position:relative;display:flex;justify-content:center;}
+  .timeline-rail::before{content:"";position:absolute;top:0;bottom:0;width:1px;background:var(--border);}
+  .timeline-item:last-child .timeline-rail::before{display:none;}
+  .timeline-dot{width:9px;height:9px;border-radius:50%;background:var(--amber);margin-top:26px;z-index:1;box-shadow:0 0 0 4px var(--bg);}
+  .timeline-content{padding-bottom:40px;}
+  .timeline-content h3{font-family:var(--font-display);font-size:1.08rem;margin-bottom:2px;}
+  .timeline-company{font-family:var(--font-mono);font-size:12px;color:var(--cyan);margin-bottom:12px;display:block;}
+  .timeline-content ul{margin-bottom:14px;}
+  .timeline-content li{position:relative;padding-left:16px;color:var(--text-muted);font-size:.95rem;margin-bottom:7px;}
+  .timeline-content li::before{content:"›";position:absolute;left:0;color:var(--amber);}
+  .timeline-tags{display:flex;flex-wrap:wrap;gap:6px;}
+
+  @media (max-width:620px){
+    .timeline-item{grid-template-columns:24px 1fr;}
+    .timeline-date{display:none;}
+  }
+
+  /* ---------- PROJECTS ---------- */
+  .projects{padding:24px 0 64px;}
+  .project-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px;}
+  .project-card h3{font-family:var(--font-display);font-size:1.08rem;margin:10px 0 2px;}
+  .project-meta{font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);margin-bottom:12px;display:block;}
+  .project-card p{color:var(--text-muted);font-size:.93rem;margin-bottom:14px;}
+  .project-status{display:flex;align-items:center;gap:7px;font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted);letter-spacing:.04em;}
+  .dot-sm{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+  .dot-green{background:var(--green);}
+  .dot-amber{background:var(--amber);}
+  .dot-cyan{background:var(--cyan);}
+  .project-links{display:flex;gap:14px;margin-top:14px;font-family:var(--font-mono);font-size:11.5px;}
+  .project-links a{color:var(--cyan);border-bottom:1px solid transparent;}
+  .project-links a:hover{border-bottom-color:var(--cyan);}
+  .project-card .tag{margin:0 6px 6px 0;}
+
+  /* ---------- EDUCATION ---------- */
+  .education{padding:24px 0 64px;}
+  .edu-panel{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;}
+  .edu-panel h3{font-family:var(--font-display);font-size:1.2rem;margin-bottom:6px;}
+  .edu-panel .timeline-company{margin-bottom:4px;}
+  .edu-panel p{color:var(--text-muted);font-size:.94rem;max-width:480px;}
+  .stamp{
+    font-family:var(--font-mono);font-size:11px;color:var(--green);
+    border:1px solid var(--green);border-radius:4px;padding:8px 14px;
+    transform:rotate(-3deg);letter-spacing:.06em;white-space:nowrap;
+  }
+
+  /* ---------- FOOTER / CONTACT ---------- */
+  .contact-footer{background:var(--panel-alt);border-top:1px solid var(--border);padding:64px 0 32px;margin-top:24px;}
+  .contact-head{margin-bottom:36px;}
+  .contact-head h2{font-family:var(--font-display);font-size:clamp(1.6rem,4vw,2.4rem);margin-bottom:10px;}
+  .contact-head p{color:var(--text-muted);max-width:480px;}
+  .contact-rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:40px;}
+  .contact-row{
+    display:flex;flex-direction:column;gap:6px;padding:16px 0;border-bottom:1px solid var(--border-soft);
+  }
+  .contact-row .label{font-family:var(--font-mono);font-size:11px;color:var(--cyan);letter-spacing:.05em;}
+  .contact-row .value{font-size:1rem;transition:color .15s ease;}
+  .contact-row a:hover .value{color:var(--amber);}
+  .footer-bottom{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+    font-family:var(--font-mono);font-size:11.5px;color:var(--text-muted);
+    border-top:1px solid var(--border-soft);padding-top:24px;
+  }
+  .footer-status{display:flex;align-items:center;gap:8px;}
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .reveal{transition:none;opacity:1;transform:none;}
+  }
+  .reduced-motion .status-dot{animation:none;}
+  .reduced-motion .flow-line{animation:none;}
+  .reduced-motion .pulse-amber, .reduced-motion .pulse-cyan{display:none;}
+</style>
+</head>
+<body>
+
+  <!-- ================= NAV ================= -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <div class="brand">
+        <span class="brand-badge">NVL</span>
+        <span class="brand-name">Nguyen Van Linh</span>
+      </div>
+      <nav class="nav-links" id="navLinks">
+        <a href="#home">Home</a>
+        <a href="#stack">Stack</a>
+        <a href="#experience">Experience</a>
+        <a href="#projects">Projects</a>
+        <a href="#education">Education</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="nav-right">
+        <div class="nav-status">
+          <span class="status-dot"></span>
+          <span id="clock">ONLINE</span>
+        </div>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">≡</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="home">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div class="hero-text reveal">
+            <p class="eyebrow">// IoT Engineer · Hanoi, Vietnam</p>
+            <h1>Nguyen Van Linh</h1>
+            <p class="hero-role">From sensor to dashboard, with the AI in between.</p>
+            <p class="hero-sub">
+              Graduated from Hanoi University of Science and Technology in Control &amp; Automation
+              Engineering, then spent the last three years writing the software layer that sits between
+              physical equipment and the people watching it — PLCs, Modbus and MQTT on one side; Node.js,
+              React and cloud dashboards on the other. Currently building factory monitoring systems and
+              the edge-AI models that keep an eye on them.
+            </p>
+            <div class="hero-cta">
+              <a class="btn btn-primary" href="mailto:linhnguyenvan2332@gmail.com">Email me</a>
+              <a class="btn btn-ghost" href="https://github.com/linhnguyen2332" target="_blank" rel="noopener">View GitHub ↗</a>
+            </div>
+          </div>
+
+          <div class="nameplate panel reveal">
+            <div class="avatar-frame">
+              <img src="avatar.png" alt="Portrait of Nguyen Van Linh">
+            </div>
+            <p class="nameplate-id">ID NVL-2332 · ENGINEER ON RECORD</p>
+            <div class="nameplate-tags">
+              <span class="tag">Control &amp; Automation</span>
+              <span class="tag">→ IoT Systems</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-strip">
+          <div class="panel reveal">
+            <div class="stat-num">3+</div>
+            <div class="stat-label">Years building software &amp; IoT systems</div>
+          </div>
+          <div class="panel reveal">
+            <div class="stat-num">6</div>
+            <div class="stat-label">Factory monitoring dashboards shipped</div>
+          </div>
+          <div class="panel reveal">
+            <div class="stat-num">2</div>
+            <div class="stat-label">Edge-AI models in production (YOLOv8 · GRU)</div>
+          </div>
+          <div class="panel reveal">
+            <div class="stat-num">HUST '23</div>
+            <div class="stat-label">Control &amp; Automation Eng., Very Good</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SIGNATURE SCHEMATIC ================= -->
+    <section class="schematic">
+      <div class="wrap">
+        <div class="panel reveal">
+          <div class="schematic-head">
+            <p class="eyebrow">// Live signal path</p>
+            <h2>From sensor to screen</h2>
+            <p>The pattern behind most of the systems below: field data travels through a protocol layer, gets stored, then surfaces on a dashboard — or straight into a model.</p>
+          </div>
+
+          <div class="diagram-wrap">
+            <svg class="signal-svg" viewBox="0 0 1130 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram: field devices connect via Modbus and MQTT to a gateway, which sends data via REST and WebSocket to a database, which feeds a dashboard and an edge AI model.">
+              <!-- connecting lines -->
+              <path id="flowA" class="flow-line" d="M170,150 H380 M530,150 H740 M890,150 Q930,150 950,110 L950,86" marker-end="url(#arrow)"/>
+              <path id="flowB" class="flow-line" d="M890,150 Q930,150 950,190 L950,214" marker-end="url(#arrow)"/>
+
+              <defs>
+                <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="var(--border)"/>
+                </marker>
+              </defs>
+
+              <!-- segment labels -->
+              <text class="seg-label" x="275" y="138">MODBUS / MQTT</text>
+              <text class="seg-label" x="635" y="138">REST / WEBSOCKET</text>
+
+              <!-- FIELD node -->
+              <rect class="node-box" x="20" y="110" width="150" height="80" rx="8"/>
+              <circle class="node-dot" cx="160" cy="120" r="3.5"/>
+              <text class="node-title" x="95" y="146" text-anchor="middle">Field</text>
+              <text class="node-sub" x="95" y="164" text-anchor="middle">PLC · sensors</text>
+
+              <!-- GATEWAY node -->
+              <rect class="node-box" x="380" y="110" width="150" height="80" rx="8"/>
+              <circle class="node-dot" cx="520" cy="120" r="3.5"/>
+              <text class="node-title" x="455" y="146" text-anchor="middle">Gateway</text>
+              <text class="node-sub" x="455" y="164" text-anchor="middle">Node.js · Socket.IO</text>
+
+              <!-- DATA node -->
+              <rect class="node-box" x="740" y="110" width="150" height="80" rx="8"/>
+              <circle class="node-dot" cx="880" cy="120" r="3.5"/>
+              <text class="node-title" x="815" y="146" text-anchor="middle">Data</text>
+              <text class="node-sub" x="815" y="164" text-anchor="middle">MongoDB · SQL</text>
+
+              <!-- DASHBOARD node -->
+              <rect class="node-box" x="950" y="40" width="150" height="68" rx="8"/>
+              <circle class="node-dot" cx="1090" cy="50" r="3.5"/>
+              <text class="node-title" x="1025" y="70" text-anchor="middle">Dashboard</text>
+              <text class="node-sub" x="1025" y="87" text-anchor="middle">React · Charts</text>
+
+              <!-- EDGE AI node -->
+              <rect class="node-box" x="950" y="214" width="150" height="68" rx="8"/>
+              <circle class="node-dot" cx="1090" cy="224" r="3.5" style="fill:var(--amber)"/>
+              <text class="node-title" x="1025" y="244" text-anchor="middle">Edge AI</text>
+              <text class="node-sub" x="1025" y="261" text-anchor="middle">YOLOv8 · GRU</text>
+
+              <!-- traveling pulses -->
+              <circle r="4.5" class="pulse-amber">
+                <animateMotion dur="4.5s" repeatCount="indefinite">
+                  <mpath href="#flowA"/>
+                </animateMotion>
+              </circle>
+              <circle r="4.5" class="pulse-cyan">
+                <animateMotion dur="3.5s" repeatCount="indefinite" begin="0.6s">
+                  <mpath href="#flowB"/>
+                </animateMotion>
+              </circle>
+            </svg>
+          </div>
+          <p class="scroll-hint">← swipe to see the full diagram →</p>
+          <p class="diagram-caption">The same shape repeats across the power, air-quality, and energy monitoring systems in the projects section.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STACK ================= -->
+    <section class="stack" id="stack">
+      <div class="wrap">
+        <h2 class="section-title reveal">Stack, by layer</h2>
+        <div class="stack-grid">
+          <div class="panel stack-card reveal">
+            <p class="eyebrow">01 · Field &amp; hardware</p>
+            <h3>Where the data starts</h3>
+            <div>
+              <span class="tag">Siemens S7-1200 PLC</span>
+              <span class="tag">Tia Portal</span>
+              <span class="tag">WinCC HMI</span>
+              <span class="tag">Sensor &amp; servo integration</span>
+              <span class="tag">Mindsphere</span>
+              <span class="tag">AutoCAD Electrical</span>
+            </div>
+          </div>
+
+          <div class="panel stack-card reveal">
+            <p class="eyebrow">02 · Connectivity</p>
+            <h3>How it gets here</h3>
+            <div>
+              <span class="tag">Modbus</span>
+              <span class="tag">MQTT</span>
+              <span class="tag">Socket.IO</span>
+              <span class="tag">WebSocket</span>
+              <span class="tag">REST API</span>
+              <span class="tag">Industrial LAN</span>
+            </div>
+          </div>
+
+          <div class="panel stack-card reveal">
+            <p class="eyebrow">03 · Backend &amp; data</p>
+            <h3>Where it lives</h3>
+            <div>
+              <span class="tag">Node.js (Express, NestJS)</span>
+              <span class="tag">MongoDB</span>
+              <span class="tag">MySQL</span>
+              <span class="tag">MS SQL Server</span>
+            </div>
+          </div>
+
+          <div class="panel stack-card reveal">
+            <p class="eyebrow">04 · Visualization</p>
+            <h3>How people see it</h3>
+            <div>
+              <span class="tag">React</span>
+              <span class="tag">Redux Toolkit</span>
+              <span class="tag">TypeScript</span>
+              <span class="tag">Chart.js</span>
+              <span class="tag">Tailwind CSS</span>
+              <span class="tag">Ant Design</span>
+            </div>
+          </div>
+
+          <div class="panel stack-card reveal">
+            <p class="eyebrow">05 · Edge intelligence</p>
+            <h3>What it learns</h3>
+            <div>
+              <span class="tag">YOLOv8</span>
+              <span class="tag">GRU</span>
+              <span class="tag">PyTorch</span>
+              <span class="tag">TensorFlow</span>
+              <span class="tag">Roboflow</span>
+            </div>
+          </div>
+        </div>
+        <p class="stack-foot reveal">Also fluent in <span>OOP, data structures &amp; algorithms, MVC and design patterns</span>, with English at <span>TOEIC 550</span>.</p>
+      </div>
+    </section>
+
+    <!-- ================= EXPERIENCE ================= -->
+    <section class="experience" id="experience">
+      <div class="wrap">
+        <h2 class="section-title reveal">Experience</h2>
+
+        <div class="timeline-item reveal">
+          <div class="timeline-date">12/2023 — Present</div>
+          <div class="timeline-rail"><div class="timeline-dot"></div></div>
+          <div class="timeline-content">
+            <h3>Staff Engineer</h3>
+            <span class="timeline-company">Synopex Vietnam Joint Stock Company</span>
+            <ul>
+              <li>Build and ship web dashboards that monitor and control factory systems: power supply, AHU &amp; air compressors, water level, CO2/PM2.5 air quality, warehouse stock, and energy consumption.</li>
+              <li>Wire real-time device data into the stack with MQTT, Modbus, and Socket.IO.</li>
+              <li>Train and deploy edge-AI models in production: a YOLOv8 model for fire and smoke detection, and a GRU model that predicts AHU power draw from weather data.</li>
+              <li>Troubleshoot hardware, network, and software issues on deployed systems; support installation and configuration on site.</li>
+            </ul>
+            <div class="timeline-tags">
+              <span class="tag">Node.js</span><span class="tag">Socket.IO</span><span class="tag">MQTT</span>
+              <span class="tag">Modbus</span><span class="tag">MongoDB</span><span class="tag">React</span><span class="tag">YOLOv8</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <div class="timeline-date">05/2023 — 11/2023</div>
+          <div class="timeline-rail"><div class="timeline-dot"></div></div>
+          <div class="timeline-content">
+            <h3>Staff</h3>
+            <span class="timeline-company">TechLead Joint Stock Company</span>
+            <ul>
+              <li>Built a third-party authentication service with NestJS and MySQL.</li>
+              <li>Shipped a Google Workspace add-on in JavaScript.</li>
+              <li>Built a Jira timesheet tool with React, Redux Toolkit, and the Forge API.</li>
+            </ul>
+            <div class="timeline-tags">
+              <span class="tag">NestJS</span><span class="tag">MySQL</span><span class="tag">React</span><span class="tag">Redux Toolkit</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <div class="timeline-date">03/2023 — 05/2023</div>
+          <div class="timeline-rail"><div class="timeline-dot"></div></div>
+          <div class="timeline-content">
+            <h3>NodeJS Intern</h3>
+            <span class="timeline-company">TechLead Joint Stock Company</span>
+            <ul>
+              <li>Trained in TypeScript and NestJS.</li>
+              <li>Maintained outsourced client projects: a sports-studio booking app (Express, Cloudinary, Firebase, Stripe, MongoDB) and a safety-standards evaluation app (NestJS, MySQL, MS SQL).</li>
+              <li>Worked task tracking through Jira and version control through GitLab.</li>
+            </ul>
+            <div class="timeline-tags">
+              <span class="tag">TypeScript</span><span class="tag">NestJS</span><span class="tag">MongoDB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <div class="timeline-date">09/2022 — 11/2022</div>
+          <div class="timeline-rail"><div class="timeline-dot"></div></div>
+          <div class="timeline-content">
+            <h3>Intern</h3>
+            <span class="timeline-company">Vietnam Stanley Electric Co., Ltd</span>
+            <ul>
+              <li>Programmed HMI screens with C# and WinCC on Tia Portal.</li>
+              <li>Managed industrial data through Mindsphere, Siemens' cloud platform.</li>
+            </ul>
+            <div class="timeline-tags">
+              <span class="tag">C#</span><span class="tag">WinCC</span><span class="tag">Mindsphere</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal">
+          <div class="timeline-date">06/2020 — 03/2023</div>
+          <div class="timeline-rail"><div class="timeline-dot"></div></div>
+          <div class="timeline-content">
+            <h3>Member</h3>
+            <span class="timeline-company">RockWell Automation Lab</span>
+            <ul>
+              <li>Programmed PLCs and HMIs, applied control algorithms to industrial machines, and managed equipment data over an industrial LAN — see the Automatic Library project below.</li>
+            </ul>
+            <div class="timeline-tags">
+              <a href="#automatic-library" class="tag" style="color:var(--cyan);">↓ See project</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= PROJECTS ================= -->
+    <section class="projects" id="projects">
+      <div class="wrap">
+        <h2 class="section-title reveal">Featured projects</h2>
+        <div class="project-grid">
+
+          <div class="panel project-card reveal" id="automatic-library">
+            <div class="project-status"><span class="dot-sm dot-green"></span>SHIPPED · LAB PROJECT</div>
+            <h3>Automatic Library</h3>
+            <span class="project-meta">RockWell Automation Lab · 2020–2023</span>
+            <p>A two-axis reciprocating robot that picks up and returns books automatically, combining cylinders and suction valves with conveyors. Books are identified by barcode; an HMI built in WinCC and C# drives the line while Microsoft SQL Server tracks the data, with industrial data also flowing through Mindsphere.</p>
+            <div>
+              <span class="tag">PLC S7-1200</span><span class="tag">WinCC</span><span class="tag">C#</span>
+              <span class="tag">SQL Server</span><span class="tag">Mindsphere</span><span class="tag">ADRC control</span>
+            </div>
+          </div>
+
+          <div class="panel project-card reveal">
+            <div class="project-status"><span class="dot-sm dot-green"></span>IN PRODUCTION</div>
+            <h3>Factory Monitoring Suite</h3>
+            <span class="project-meta">Synopex Vietnam · 2023–present</span>
+            <p>A family of web dashboards for factory operations: power supply, AHU and air-compressor performance, water level, CO2/PM2.5 air quality, warehouse stock, and energy consumption — all built on the same real-time stack.</p>
+            <div>
+              <span class="tag">Node.js</span><span class="tag">Socket.IO</span><span class="tag">MQTT</span>
+              <span class="tag">Modbus</span><span class="tag">React</span><span class="tag">Chart.js</span>
+            </div>
+          </div>
+
+          <div class="panel project-card reveal">
+            <div class="project-status"><span class="dot-sm dot-amber"></span>RESEARCH &amp; ONGOING</div>
+            <h3>Edge AI for Industrial Safety</h3>
+            <span class="project-meta">Synopex Vietnam · ongoing</span>
+            <p>A YOLOv8 model that watches camera feeds for fire and smoke, paired with a GRU model that predicts AHU power draw from weather data — both trained in PyTorch/TensorFlow and tuned with Roboflow.</p>
+            <div>
+              <span class="tag">YOLOv8</span><span class="tag">GRU</span><span class="tag">PyTorch</span>
+              <span class="tag">TensorFlow</span><span class="tag">Roboflow</span>
+            </div>
+          </div>
+
+          <div class="panel project-card reveal">
+            <div class="project-status"><span class="dot-sm dot-cyan"></span>PERSONAL PROJECT</div>
+            <h3>BookingCare</h3>
+            <span class="project-meta">Solo project · 2022–2023</span>
+            <p>A full-stack healthcare-booking clone built end to end to practice the stack outside of work — user CRUD, MySQL-backed data, and a React front end.</p>
+            <div>
+              <span class="tag">React</span><span class="tag">Redux</span><span class="tag">Node.js</span>
+              <span class="tag">Express</span><span class="tag">MySQL</span>
+            </div>
+            <div class="project-links">
+              <a href="https://github.com/linhnguyen2332/BookingCare-web-FE.git" target="_blank" rel="noopener">Frontend repo ↗</a>
+              <a href="https://github.com/linhnguyen2332/Bookingcare-web-BE.git" target="_blank" rel="noopener">Backend repo ↗</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= EDUCATION ================= -->
+    <section class="education" id="education">
+      <div class="wrap">
+        <h2 class="section-title reveal">Education</h2>
+        <div class="panel edu-panel reveal">
+          <div>
+            <h3>Hanoi University of Science and Technology</h3>
+            <span class="timeline-company">Industrial Informatics · Faculty of Control &amp; Automation Engineering</span>
+            <p>09/2018 — 05/2023 · Engineer's degree</p>
+          </div>
+          <div class="stamp">VERY GOOD</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= CONTACT / FOOTER ================= -->
+  <footer class="contact-footer" id="contact">
+    <div class="wrap">
+      <div class="contact-head reveal">
+        <h2>Let's build something that runs 24/7.</h2>
+        <p>Open to IoT, industrial software, and full-stack roles. The fastest way to reach me is email.</p>
+      </div>
+
+      <div class="contact-rows">
+        <a class="contact-row" href="mailto:linhnguyenvan2332@gmail.com">
+          <span class="label">// EMAIL</span>
+          <span class="value">linhnguyenvan2332@gmail.com</span>
+        </a>
+        <a class="contact-row" href="tel:+84986633143">
+          <span class="label">// PHONE</span>
+          <span class="value">0986 633 143</span>
+        </a>
+        <a class="contact-row" href="https://github.com/linhnguyen2332" target="_blank" rel="noopener">
+          <span class="label">// GITHUB</span>
+          <span class="value">github.com/linhnguyen2332</span>
+        </a>
+        <div class="contact-row">
+          <span class="label">// LOCATION</span>
+          <span class="value">Hanoi, Vietnam</span>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span id="year">© 2026 Nguyen Van Linh</span>
+        <span class="footer-status"><span class="status-dot"></span>Open to IoT &amp; industrial software roles</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // mobile nav toggle
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('open');
+      navToggle.setAttribute('aria-expanded', isOpen);
+    });
+    navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      navLinks.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }));
+
+    // live clock (Asia/Ho_Chi_Minh)
+    const clockEl = document.getElementById('clock');
+    function updateClock(){
+      try{
+        const t = new Date().toLocaleTimeString('en-GB', { timeZone:'Asia/Ho_Chi_Minh', hour12:false });
+        clockEl.textContent = t + ' ICT';
+      }catch(e){ clockEl.textContent = 'ONLINE'; }
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // footer year
+    document.getElementById('year').textContent = '© ' + new Date().getFullYear() + ' Nguyen Van Linh';
+
+    // reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.documentElement.classList.add('reduced-motion');
+    }
+
+    // reveal on scroll
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
